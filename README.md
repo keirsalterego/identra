@@ -1,177 +1,49 @@
-# Turborepo starter
-
-This Turborepo starter is maintained by the Turborepo core team.
-
-## Using this example
-
-Run the following command:
-
-```sh
-npx create-turbo@latest
-```
-
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-
-
----
-
 ## Repository Structure
 
 ```
-Root
-├── package.json
-├── pnpm-lock.yaml
-├── pnpm-workspace.yaml
-├── README.md
-├── turbo.json
+identra/
+├── .github/                        # CI/CD Workflows (Rust Lint, Docker Build)
+├── Cargo.toml                      # Workspace Definition
+├── Justfile                        # Command Runner (like Make, but better)
 │
-├── apps/
-│   ├── api-rust/                # Rust API service
-│   │   ├── Cargo.toml
-│   │   └── src/main.rs
-│   ├── web/                     # Next.js web application
-│   │   ├── app/
-│   │   ├── public/
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   └── worker-notifications/    # Rust worker for notifications
-│       ├── Cargo.toml
-│       └── src/main.rs
+├── infra/                          # Infrastructure as Code
+│   ├── k8s/                        # Helm Charts for Kubernetes
+│   ├── terraform/                  # AWS Provisioning (Nitro, RDS, VPC)
+│   └── nitro/                      # Enclave Image (EIF) Dockerfiles
 │
-├── infra/
-│   └── docker/                  # Infrastructure and Docker-related files
+├── clients/                        # FRONTEND & DESKTOP
+│   └── ghost-desktop/              # The Tauri Client
+│       ├── src-tauri/              # Rust Backend (The Nexus)
+│       │   ├── src/nexus.rs        # State Manager
+│       │   ├── src/screener.rs     # Windows/Mac Accessibility Hooks
+│       │   └── src/cortex.rs       # Local ONNX Runtime
+│       └── src-ui/                 # Next.js Frontend (The View)
+│           ├── app/overlay/        # Cmd+K Route
+│           └── app/dashboard/      # Main Chat Route
 │
-└── packages/
-		├── eslint-config/           # Shared ESLint configurations
-		│   ├── base.js
-		│   ├── next.js
-		│   ├── react-internal.js
-		│   └── package.json
-		├── typescript-config/       # Shared TypeScript configurations
-		│   ├── base.json
-		│   ├── nextjs.json
-		│   ├── react-library.json
-		│   └── package.json
-		└── ui/                      # Shared React UI components
-				├── src/button.tsx
-				├── src/card.tsx
-				├── src/code.tsx
-				├── package.json
-				└── tsconfig.json
-```
-
-Each module is self-contained, supporting modular development and code sharing across the monorepo.
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
+├── apps/                           # BACKEND SERVICES
+│   ├── tunnel-gateway/             # Rust gRPC Server (Entry Point)
+│   │   └── src/main.rs             # Handles streams from Desktop
+│   │
+│   ├── enclave-service/            # Rust Secure Logic (Runs in Nitro)
+│   │   └── src/kms.rs              # Key Management (The Vault)
+│   │
+│   └── brain-service/              # Python RAG Engine (The AI) <--- THE BRAIN
+│       ├── main.py                 # FastAPI App
+│       ├── rag_chain.py            # LangChain/LlamaIndex Logic
+│       └── prompts/                # System Prompt Templates
+│
+├── libs/                           # SHARED RUST CRATES
+│   ├── identra-core/               # Telemetry, Config, Errors
+│   ├── identra-proto/              # Shared gRPC Definitions (.proto)
+│   ├── identra-crypto/             # AES-256-GCM, Noise Protocol
+│   └── identra-auth/               # OIDC/Hydra Integration
+│
+└── tools/                          # Developer Scripts
+    ├── init_db.sh                  # Spin up local Postgres + pgvector
+    └── mock_enclave.sh             # Run enclave logic locally for testing
 
 ```
-cd my-turborepo
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
-
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
 # identra
