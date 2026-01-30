@@ -51,6 +51,7 @@ export default function ChatInterface() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
+  const [rightPanelOpen, setRightPanelOpen] = useState(true);
   const [theme, setTheme] = useState(() => {
     try {
       const stored = localStorage.getItem("identra-theme");
@@ -290,6 +291,13 @@ export default function ChatInterface() {
           <User className="w-5 h-5" />
         </button>
         <div className="flex-1" />
+        <button
+          title="Toggle Context Panel"
+          onClick={() => setRightPanelOpen((v) => !v)}
+          className={`p-2.5 rounded-lg transition-colors ${rightPanelOpen ? "text-identra-text-primary bg-identra-surface-elevated/80" : "text-identra-text-tertiary hover:text-identra-text-primary hover:bg-identra-surface-elevated/80"}`}
+        >
+          <FileText className="w-5 h-5" />
+        </button>
         <button
           title="Settings"
           onClick={() => {
@@ -596,7 +604,8 @@ export default function ChatInterface() {
       </main>
 
       {/* Right Section - Model Context and Recent Chats */}
-      <aside className="w-72 bg-identra-surface border-l border-identra-divider flex flex-col">
+      {rightPanelOpen && (
+        <aside className="w-72 bg-identra-surface border-l border-identra-divider flex flex-col">
         {/* Model Context and Audits */}
         <div className="px-4 py-5 border-b border-identra-border-subtle">
           <h3 className="text-[10px] font-semibold text-identra-text-secondary uppercase tracking-[0.1em] mb-4">
@@ -692,6 +701,7 @@ export default function ChatInterface() {
           </div>
         </div>
       </aside>
+      )}
     </div>
   );
 }
