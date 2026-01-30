@@ -279,22 +279,28 @@ export default function ChatInterface() {
     <div className="flex h-screen bg-identra-bg text-identra-text-primary font-sans antialiased">
       
       {/* Left Section - Icon strip */}
-      <aside className="w-14 bg-identra-surface/80 border-r border-identra-divider flex flex-col items-center py-4 gap-1 shrink-0">
+      <aside className="w-14 bg-identra-surface/80 border-r border-identra-divider flex flex-col items-center py-4 gap-1 shrink-0 shadow-soft">
         <button
           title="User Profile"
           onClick={() => {
             setSettingsOpen(false);
+            setRightPanelOpen(false);
             setProfileOpen((v) => !v);
           }}
-          className={`p-2.5 rounded-lg transition-colors ${profileOpen ? "text-identra-text-primary bg-identra-surface-elevated/80" : "text-identra-text-tertiary hover:text-identra-text-primary hover:bg-identra-surface-elevated/80"}`}
+          className="button-glow p-2.5 rounded-lg transition-all duration-300 hover:shadow-glow hover:scale-105 active:animate-button-press shadow-soft lighting-subtle"
         >
-          <User className="w-5 h-5" />
+          <User className="w-5 h-5 text-identra-text-tertiary hover:text-identra-text-primary transition-colors duration-200" />
         </button>
         <div className="flex-1" />
         <button
           title="Toggle Context Panel"
-          onClick={() => setRightPanelOpen((v) => !v)}
-          className={`p-2.5 rounded-lg transition-colors ${rightPanelOpen ? "text-identra-text-primary bg-identra-surface-elevated/80" : "text-identra-text-tertiary hover:text-identra-text-primary hover:bg-identra-surface-elevated/80"}`}
+          onClick={() => {
+            setRightPanelOpen((v) => !v);
+            // Add visual feedback
+          }}
+          className={`button-glow p-2.5 rounded-lg transition-all duration-300 hover:shadow-glow hover:scale-105 active:animate-button-press shadow-soft lighting-subtle ${
+            rightPanelOpen ? "text-identra-text-primary bg-identra-surface-elevated/80 shadow-glow" : "text-identra-text-tertiary hover:text-identra-text-primary"
+          }`}
         >
           <FileText className="w-5 h-5" />
         </button>
@@ -302,11 +308,12 @@ export default function ChatInterface() {
           title="Settings"
           onClick={() => {
             setProfileOpen(false);
+            setRightPanelOpen(false);
             setSettingsOpen((v) => !v);
           }}
-          className={`p-2.5 rounded-lg transition-colors ${settingsOpen ? "text-identra-text-primary bg-identra-surface-elevated/80" : "text-identra-text-tertiary hover:text-identra-text-primary hover:bg-identra-surface-elevated/80"}`}
+          className="button-glow p-2.5 rounded-lg transition-all duration-300 hover:shadow-glow hover:scale-105 active:animate-button-press shadow-soft lighting-subtle"
         >
-          <Settings className="w-5 h-5" />
+          <Settings className="w-5 h-5 text-identra-text-tertiary hover:text-identra-text-primary transition-colors duration-200" />
         </button>
       </aside>
 
@@ -318,7 +325,7 @@ export default function ChatInterface() {
             aria-hidden
             onClick={() => setProfileOpen(false)}
           />
-          <div className="fixed left-14 top-0 bottom-0 w-72 bg-identra-surface border-r border-identra-divider z-50 flex flex-col shadow-xl animate-slide-in-left">
+          <div className="fixed left-14 top-0 bottom-0 w-72 bg-identra-surface border-r border-identra-divider z-50 flex flex-col shadow-strong animate-slide-in-left">
             <div className="flex items-center justify-between px-4 py-3 border-b border-identra-border-subtle">
               <span className="text-xs font-semibold text-identra-text-secondary uppercase tracking-wider">Profile</span>
               <button
@@ -357,7 +364,7 @@ export default function ChatInterface() {
             aria-hidden
             onClick={() => setSettingsOpen(false)}
           />
-          <div className="fixed left-14 top-0 bottom-0 w-72 bg-identra-surface border-r border-identra-divider z-50 flex flex-col shadow-xl animate-slide-in-left">
+          <div className="fixed left-14 top-0 bottom-0 w-72 bg-identra-surface border-r border-identra-divider z-50 flex flex-col shadow-strong animate-slide-in-left">
             <div className="flex items-center justify-between px-4 py-3 border-b border-identra-border-subtle">
               <span className="text-xs font-semibold text-identra-text-secondary uppercase tracking-wider">Settings</span>
               <button
@@ -442,7 +449,7 @@ export default function ChatInterface() {
       )}
 
       {/* Middle Section - Chat */}
-      <main className="flex-1 flex flex-col min-w-0 border-r border-identra-divider">
+      <main className="flex-1 flex flex-col min-w-0 border-r border-identra-divider shadow-soft lighting-subtle">
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto px-8 py-8">
           {messages.length === 0 ? (
@@ -462,14 +469,14 @@ export default function ChatInterface() {
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={handleKeyPress}
                       placeholder="Type a message to Identra to get started..."
-                      className="w-full bg-identra-surface/60 border border-identra-border-subtle focus:border-identra-primary/70 rounded-lg px-4 py-4 pr-12 text-sm text-identra-text-primary placeholder:text-identra-text-tertiary outline-none transition-all duration-75 focus:bg-identra-surface/80 backdrop-blur-sm resize-none overflow-y-auto"
+                      className="w-full bg-identra-surface/60 border border-identra-border-subtle focus:border-identra-primary/70 rounded-lg px-4 py-4 pr-12 text-sm text-identra-text-primary placeholder:text-identra-text-tertiary outline-none transition-all duration-300 focus:bg-identra-surface/80 backdrop-blur-sm resize-none overflow-y-auto shadow-soft hover:shadow-medium focus:shadow-glow lighting-subtle"
                       disabled={isProcessing}
                       style={{ minHeight: '80px', maxHeight: '400px' }}
                     />
                     <button
                       onClick={handleSend}
                       disabled={!input.trim() || isProcessing}
-                      className="absolute right-3 bottom-3 p-2 text-identra-text-tertiary hover:text-identra-text-primary disabled:text-identra-text-disabled hover:bg-identra-surface/80 rounded transition-all duration-75"
+                      className="absolute right-3 bottom-3 p-2 text-identra-text-tertiary hover:text-identra-text-primary disabled:text-identra-text-disabled hover:bg-identra-surface/80 rounded transition-all duration-200 hover:shadow-glow active:animate-button-press"
                     >
                       <Send className="w-5 h-5" />
                     </button>
@@ -509,7 +516,7 @@ export default function ChatInterface() {
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div className="w-[60%] flex flex-col gap-2">
-                    <div className={`px-4 py-3 rounded-lg ${
+                    <div className={`px-4 py-3 rounded-lg shadow-soft lighting-subtle transition-all duration-200 hover:shadow-medium ${
                       msg.role === 'user' 
                         ? 'bg-identra-surface-elevated border border-identra-border text-identra-text-primary ml-auto' 
                         : 'bg-identra-surface border border-identra-border-subtle text-identra-text-primary mr-auto'
@@ -560,14 +567,14 @@ export default function ChatInterface() {
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={handleKeyPress}
                       placeholder="Type a message to Identra..."
-                      className="w-full bg-identra-surface/60 border border-identra-border-subtle focus:border-identra-primary/70 rounded-lg px-4 py-4 pr-12 text-sm text-identra-text-primary placeholder:text-identra-text-tertiary outline-none transition-all duration-75 focus:bg-identra-surface/80 backdrop-blur-sm resize-none overflow-y-auto"
+                      className="w-full bg-identra-surface/60 border border-identra-border-subtle focus:border-identra-primary/70 rounded-lg px-4 py-4 pr-12 text-sm text-identra-text-primary placeholder:text-identra-text-tertiary outline-none transition-all duration-300 focus:bg-identra-surface/80 backdrop-blur-sm resize-none overflow-y-auto shadow-soft hover:shadow-medium focus:shadow-glow lighting-subtle"
                       disabled={isProcessing}
                       style={{ minHeight: '80px', maxHeight: '400px' }}
                     />
                     <button
                       onClick={handleSend}
                       disabled={!input.trim() || isProcessing}
-                      className="absolute right-3 bottom-3 p-2 text-identra-text-tertiary hover:text-identra-text-primary disabled:text-identra-text-disabled hover:bg-identra-surface/80 rounded transition-all duration-75"
+                      className="absolute right-3 bottom-3 p-2 text-identra-text-tertiary hover:text-identra-text-primary disabled:text-identra-text-disabled hover:bg-identra-surface/80 rounded transition-all duration-200 hover:shadow-glow active:animate-button-press"
                     >
                       <Send className="w-5 h-5" />
                     </button>
@@ -581,9 +588,9 @@ export default function ChatInterface() {
                         <button
                           key={model.id}
                           onClick={() => setSelectedModel(model.id)}
-                          className={`flex items-center justify-center w-8 h-8 rounded-full border transition-all duration-100 p-1.5 ${
+                          className={`flex items-center justify-center w-8 h-8 rounded-full border transition-all duration-300 p-1.5 hover:scale-110 active:animate-button-press shadow-soft hover:shadow-glow lighting-subtle ${
                             selectedModel === model.id
-                              ? 'border-identra-primary/80 bg-identra-surface/80 shadow-[0_0_10px_rgba(120,119,198,0.5)]'
+                              ? 'border-identra-primary/80 bg-identra-surface/80 shadow-glow animate-pulse-glow'
                               : 'border-identra-border-subtle bg-identra-surface/60 hover:border-identra-primary/60'
                           }`}
                           title={model.name}
@@ -605,7 +612,7 @@ export default function ChatInterface() {
 
       {/* Right Section - Model Context and Recent Chats */}
       {rightPanelOpen && (
-        <aside className="w-72 bg-identra-surface border-l border-identra-divider flex flex-col">
+        <aside className="w-72 bg-identra-surface border-l border-identra-divider flex flex-col shadow-medium lighting-accent animate-slide-in-right">
         {/* Model Context and Audits */}
         <div className="px-4 py-5 border-b border-identra-border-subtle">
           <h3 className="text-[10px] font-semibold text-identra-text-secondary uppercase tracking-[0.1em] mb-4">
@@ -617,7 +624,7 @@ export default function ChatInterface() {
               return (
                 <div 
                   key={doc.id}
-                  className="px-3 py-2.5 bg-identra-surface-elevated border border-identra-border hover:border-identra-primary transition-all duration-75 cursor-pointer group rounded"
+                  className="px-3 py-2.5 bg-identra-surface-elevated border border-identra-border hover:border-identra-primary transition-all duration-300 cursor-pointer group rounded shadow-soft hover:shadow-glow lighting-subtle hover:scale-[1.02] active:animate-button-press"
                 >
                   <div className="flex items-start gap-2.5 mb-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-identra-active shrink-0 mt-1.5"></div>
@@ -675,7 +682,7 @@ export default function ChatInterface() {
                   <button
                     key={item.id} 
                     onClick={() => handleLoadConversation(item)}
-                    className="w-full px-3 py-3 bg-identra-surface-elevated border border-identra-border hover:border-identra-primary cursor-pointer transition-all duration-75 group rounded text-left"
+                    className="w-full px-3 py-3 bg-identra-surface-elevated border border-identra-border hover:border-identra-primary cursor-pointer transition-all duration-300 group rounded shadow-soft hover:shadow-glow lighting-subtle hover:scale-[1.02] active:animate-button-press text-left"
                   >
                     <div className="flex items-center gap-2.5 mb-2">
                       <FileText className="w-3.5 h-3.5 text-identra-text-tertiary group-hover:text-identra-text-secondary" />
