@@ -15,6 +15,7 @@ export default {
           'surface-hover': 'var(--identra-surface-hover)',
           border: 'var(--identra-border)',
           'border-subtle': 'var(--identra-border-subtle)',
+          divider: 'var(--identra-divider)',
           primary: 'var(--identra-primary)',
           'primary-light': 'var(--identra-primary-light)',
           'primary-dark': 'var(--identra-primary-dark)',

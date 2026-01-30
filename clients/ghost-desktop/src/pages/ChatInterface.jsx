@@ -254,7 +254,7 @@ export default function ChatInterface() {
     <div className="flex h-screen bg-identra-bg text-identra-text-primary font-sans antialiased">
       
       {/* Left Section - Icon strip */}
-      <aside className="w-14 bg-identra-surface/80 border-r border-identra-border-subtle/50 flex flex-col items-center py-4 gap-1 shrink-0">
+      <aside className="w-14 bg-identra-surface/80 border-r border-identra-divider flex flex-col items-center py-4 gap-1 shrink-0">
         <button
           title="User Profile"
           onClick={() => {
@@ -286,7 +286,7 @@ export default function ChatInterface() {
             aria-hidden
             onClick={() => setProfileOpen(false)}
           />
-          <div className="fixed left-14 top-0 bottom-0 w-72 bg-identra-surface border-r border-identra-border-subtle z-50 flex flex-col shadow-xl animate-slide-in-left">
+          <div className="fixed left-14 top-0 bottom-0 w-72 bg-identra-surface border-r border-identra-divider z-50 flex flex-col shadow-xl animate-slide-in-left">
             <div className="flex items-center justify-between px-4 py-3 border-b border-identra-border-subtle">
               <span className="text-xs font-semibold text-identra-text-secondary uppercase tracking-wider">Profile</span>
               <button
@@ -325,7 +325,7 @@ export default function ChatInterface() {
             aria-hidden
             onClick={() => setSettingsOpen(false)}
           />
-          <div className="fixed left-14 top-0 bottom-0 w-72 bg-identra-surface border-r border-identra-border-subtle z-50 flex flex-col shadow-xl animate-slide-in-left">
+          <div className="fixed left-14 top-0 bottom-0 w-72 bg-identra-surface border-r border-identra-divider z-50 flex flex-col shadow-xl animate-slide-in-left">
             <div className="flex items-center justify-between px-4 py-3 border-b border-identra-border-subtle">
               <span className="text-xs font-semibold text-identra-text-secondary uppercase tracking-wider">Settings</span>
               <button
@@ -410,7 +410,7 @@ export default function ChatInterface() {
       )}
 
       {/* Middle Section - Chat */}
-      <main className="flex-1 flex flex-col min-w-0 border-r border-identra-border-subtle">
+      <main className="flex-1 flex flex-col min-w-0 border-r border-identra-divider">
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto px-8 py-8">
           {messages.length === 0 ? (
@@ -566,7 +566,7 @@ export default function ChatInterface() {
       </main>
 
       {/* Right Section - Model Context and Recent Chats */}
-      <aside className="w-72 bg-identra-surface border-l border-identra-border-subtle flex flex-col">
+      <aside className="w-72 bg-identra-surface border-l border-identra-divider flex flex-col">
         {/* Model Context and Audits */}
         <div className="px-4 py-5 border-b border-identra-border-subtle">
           <h3 className="text-[10px] font-semibold text-identra-text-secondary uppercase tracking-[0.1em] mb-4">

@@ -23,6 +23,7 @@
   --identra-text-tertiary: #a1a1aa;
   --identra-text-muted: #71717a;
   --identra-text-disabled: #52525b;
+  --identra-divider: rgba(255, 255, 255, 0.04);
 }
 
 /* Grey theme - mid-tone professional */
@@ -45,6 +46,7 @@
   --identra-text-tertiary: #a1a1aa;
   --identra-text-muted: #71717a;
   --identra-text-disabled: #71717a;
+  --identra-divider: rgba(255, 255, 255, 0.06);
 }
 
 /* Light theme - white / low light */
@@ -67,6 +69,7 @@
   --identra-text-tertiary: #64748b;
   --identra-text-muted: #94a3b8;
   --identra-text-disabled: #94a3b8;
+  --identra-divider: rgba(15, 23, 42, 0.08);
 }
 
 /* Identra OS - Custom Styles */
