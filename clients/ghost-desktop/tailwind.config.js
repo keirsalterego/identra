@@ -8,32 +8,27 @@ export default {
     extend: {
       colors: {
         identra: {
-          // Near-black foundation - infrastructure palette
-          bg: '#09090b',
-          surface: '#0f0f11',
-          'surface-elevated': '#14141a',
-          'surface-hover': '#18181d',
-          border: '#1f1f24',
-          'border-subtle': '#17171c',
-          
-          // Single subtle accent - system state indicator
-          primary: '#52525b',      // Neutral zinc for focus
-          'primary-light': '#5a5a63',
-          'primary-dark': '#3f3f46',
-          
-          // Status - functional only
-          success: '#3a3a3a',
-          warning: '#3a3a3a',
-          error: '#3a3a3a',
-          active: '#52525b',    // System active state
-          
-          // High-contrast text hierarchy
+          // Theme-aware via CSS variables (dark/light in App.css)
+          bg: 'var(--identra-bg)',
+          surface: 'var(--identra-surface)',
+          'surface-elevated': 'var(--identra-surface-elevated)',
+          'surface-hover': 'var(--identra-surface-hover)',
+          border: 'var(--identra-border)',
+          'border-subtle': 'var(--identra-border-subtle)',
+          divider: 'var(--identra-divider)',
+          primary: 'var(--identra-primary)',
+          'primary-light': 'var(--identra-primary-light)',
+          'primary-dark': 'var(--identra-primary-dark)',
+          success: 'var(--identra-success)',
+          warning: 'var(--identra-warning)',
+          error: 'var(--identra-error)',
+          active: 'var(--identra-active)',
           text: {
-            primary: '#fafafa',
-            secondary: '#d4d4d8',
-            tertiary: '#a1a1aa',
-            muted: '#71717a',
-            disabled: '#52525b',
+            primary: 'var(--identra-text-primary)',
+            secondary: 'var(--identra-text-secondary)',
+            tertiary: 'var(--identra-text-tertiary)',
+            muted: 'var(--identra-text-muted)',
+            disabled: 'var(--identra-text-disabled)',
           }
         }
       },
@@ -52,11 +47,37 @@ export default {
       },
       animation: {
         'fade': 'fade 120ms ease-out',
+        'slide-in-left': 'slide-in-left 200ms ease-out',
+        'slide-in-right': 'slideInRight 300ms ease-out',
+        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+        'button-press': 'button-press 150ms ease-out',
+        'shimmer': 'shimmer 2s infinite',
       },
       keyframes: {
         'fade': {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
+        },
+        'slide-in-left': {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(0)' },
+        },
+        'slideInRight': {
+          '0%': { opacity: '0', transform: 'translateX(20px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        'pulse-glow': {
+          '0%, 100%': { boxShadow: '0 0 20px rgba(82, 82, 91, 0.2)' },
+          '50%': { boxShadow: '0 0 30px rgba(82, 82, 91, 0.4)' },
+        },
+        'button-press': {
+          '0%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(0.95)' },
+          '100%': { transform: 'scale(1)' },
+        },
+        'shimmer': {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
         },
       },
     },

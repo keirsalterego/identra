@@ -2,6 +2,76 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Identra OS - Theme variables (dark = default) */
+:root,
+[data-theme="dark"] {
+  --identra-bg: #0a0a0c;
+  --identra-surface: #111113;
+  --identra-surface-elevated: #18181b;
+  --identra-surface-hover: #1c1c1f;
+  --identra-border: #27272a;
+  --identra-border-subtle: #1c1c1f;
+  --identra-primary: #52525b;
+  --identra-primary-light: #71717a;
+  --identra-primary-dark: #3f3f46;
+  --identra-success: #22c55e;
+  --identra-warning: #eab308;
+  --identra-error: #ef4444;
+  --identra-active: #52525b;
+  --identra-text-primary: #fafafa;
+  --identra-text-secondary: #d4d4d8;
+  --identra-text-tertiary: #a1a1aa;
+  --identra-text-muted: #71717a;
+  --identra-text-disabled: #52525b;
+  --identra-divider: rgba(255, 255, 255, 0.04);
+}
+
+/* Grey theme - mid-tone professional */
+[data-theme="grey"] {
+  --identra-bg: #27272a;
+  --identra-surface: #3f3f46;
+  --identra-surface-elevated: #52525b;
+  --identra-surface-hover: #4a4a52;
+  --identra-border: #71717a;
+  --identra-border-subtle: #52525b;
+  --identra-primary: #a1a1aa;
+  --identra-primary-light: #d4d4d8;
+  --identra-primary-dark: #71717a;
+  --identra-success: #22c55e;
+  --identra-warning: #eab308;
+  --identra-error: #ef4444;
+  --identra-active: #a1a1aa;
+  --identra-text-primary: #fafafa;
+  --identra-text-secondary: #e4e4e7;
+  --identra-text-tertiary: #a1a1aa;
+  --identra-text-muted: #71717a;
+  --identra-text-disabled: #71717a;
+  --identra-divider: rgba(255, 255, 255, 0.06);
+}
+
+/* Light theme - white / low light */
+[data-theme="light"] {
+  --identra-bg: #f8fafc;
+  --identra-surface: #f1f5f9;
+  --identra-surface-elevated: #e2e8f0;
+  --identra-surface-hover: #e2e8f0;
+  --identra-border: #cbd5e1;
+  --identra-border-subtle: #e2e8f0;
+  --identra-primary: #64748b;
+  --identra-primary-light: #94a3b8;
+  --identra-primary-dark: #475569;
+  --identra-success: #22c55e;
+  --identra-warning: #eab308;
+  --identra-error: #ef4444;
+  --identra-active: #64748b;
+  --identra-text-primary: #0f172a;
+  --identra-text-secondary: #334155;
+  --identra-text-tertiary: #64748b;
+  --identra-text-muted: #94a3b8;
+  --identra-text-disabled: #94a3b8;
+  --identra-divider: rgba(15, 23, 42, 0.08);
+}
+
 /* Identra OS - Custom Styles */
 :root {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -17,8 +87,8 @@
 }
 
 body {
-  background: transparent !important;
-  color: #f5f5f5;
+  background: var(--identra-bg) !important;
+  color: var(--identra-text-primary);
   overflow: hidden;
 }
 
@@ -34,30 +104,30 @@ html {
   flex-direction: column;
 }
 
-/* Custom scrollbar styling */
+/* Custom scrollbar styling - theme aware */
 ::-webkit-scrollbar {
   width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: var(--identra-surface);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333;
+  background: var(--identra-border);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--identra-primary);
 }
 
-/* Input autofill override */
+/* Input autofill override - theme aware */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
-  -webkit-text-fill-color: #f5f5f5;
-  -webkit-box-shadow: 0 0 0px 1000px #0a0a0a inset;
+  -webkit-text-fill-color: var(--identra-text-primary);
+  -webkit-box-shadow: 0 0 0px 1000px var(--identra-surface) inset;
   transition: background-color 5000s ease-in-out 0s;
 }
 
@@ -73,6 +143,63 @@ input:-webkit-autofill:focus {
   grid-template-columns: 256px 1fr 288px;
   height: 100vh;
   overflow: hidden;
+}
+
+/* Enhanced button animations and lighting effects */
+.button-glow {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.button-glow::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.button-glow:hover::before {
+  left: 100%;
+}
+
+.button-glow:active {
+  transform: scale(0.95);
+  box-shadow: 0 0 20px rgba(82, 82, 91, 0.3);
+}
+
+/* Professional shadow system */
+.shadow-soft {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.shadow-medium {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.shadow-strong {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.shadow-glow {
+  box-shadow: 0 0 20px rgba(82, 82, 91, 0.2), 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.shadow-glow-hover {
+  box-shadow: 0 0 30px rgba(82, 82, 91, 0.4), 0 6px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Lighting effects */
+.lighting-subtle {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, transparent 50%);
+}
+
+.lighting-accent {
+  background: linear-gradient(135deg, rgba(82, 82, 91, 0.1) 0%, transparent 70%);
 }
 
 /* Smooth transitions for expandable elements */
@@ -91,6 +218,66 @@ input:-webkit-autofill:focus {
   }
 }
 
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(82, 82, 91, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(82, 82, 91, 0.4);
+  }
+}
+
+@keyframes button-press {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Enhanced animations */
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-button-press {
+  animation: button-press 0.15s ease-out;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
 /* Message bubble styling */
 .message-bubble {
   word-wrap: break-word;
@@ -107,21 +294,21 @@ input:-webkit-autofill:focus {
 
 /* Professional spacing and alignment */
 .section-divider {
-  border-color: #17171c;
+  border-color: var(--identra-border-subtle);
   border-width: 1px;
 }
 
 /* Box styling for recent chats */
 .recent-chat-box {
-  background: #14141a;
-  border: 1px solid #1f1f24;
+  background: var(--identra-surface-elevated);
+  border: 1px solid var(--identra-border);
   border-radius: 0.5rem;
   transition: all 0.15s ease;
 }
 
 .recent-chat-box:hover {
-  border-color: #52525b;
-  background: #18181d;
+  border-color: var(--identra-primary);
+  background: var(--identra-surface-hover);
 }
 
 /* Textarea resizing and styling */
@@ -133,7 +320,7 @@ textarea {
 }
 
 textarea::-webkit-resizer {
-  background-color: #52525b;
+  background-color: var(--identra-primary);
   border-radius: 0 0 0.5rem 0;
 }
 
@@ -149,14 +336,14 @@ textarea::-webkit-scrollbar {
 }
 
 textarea::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: var(--identra-surface);
 }
 
 textarea::-webkit-scrollbar-thumb {
-  background: #333;
+  background: var(--identra-border);
   border-radius: 3px;
 }
 
 textarea::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--identra-primary);
 }
