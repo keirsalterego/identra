@@ -7,9 +7,13 @@ import {
   Settings,
   X,
   Moon,
+  Sun,
+  Circle,
   Bell,
   Shield,
-  LogOut
+  LogOut,
+  ChevronDown,
+  Check
 } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 
@@ -22,8 +26,26 @@ export default function ChatInterface() {
   const [conversationHistory, setConversationHistory] = useState([]);
   const [profileOpen, setProfileOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [themeOpen, setThemeOpen] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    try {
+      const stored = localStorage.getItem("identra-theme");
+      if (stored === "light" || stored === "grey" || stored === "dark") return stored;
+      return "dark";
+    } catch {
+      return "dark";
+    }
+  });
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
+
+  // Apply theme to document and persist
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    try {
+      localStorage.setItem("identra-theme", theme);
+    } catch (_) {}
+  }, [theme]);
 
   const models = [
     { id: "claude", name: "Claude 3.5 Sonnet", color: "identra-claude", icon: "⚡" },
@@ -317,10 +339,51 @@ export default function ChatInterface() {
             <div className="flex-1 overflow-y-auto p-4">
               <ul className="space-y-0.5">
                 <li>
-                  <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm text-identra-text-primary hover:bg-identra-surface-elevated transition-colors">
-                    <Moon className="w-4 h-4 text-identra-text-tertiary" />
-                    <span>Theme</span>
+                  <button
+                    onClick={() => setThemeOpen((v) => !v)}
+                    className="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-left text-sm text-identra-text-primary hover:bg-identra-surface-elevated transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Moon className="w-4 h-4 text-identra-text-tertiary" />
+                      <span>Theme</span>
+                    </div>
+                    <span className="text-xs text-identra-text-tertiary capitalize">{theme === "grey" ? "Grey" : theme}</span>
+                    <ChevronDown className={`w-4 h-4 text-identra-text-tertiary transition-transform ${themeOpen ? "rotate-180" : ""}`} />
                   </button>
+                  {themeOpen && (
+                    <div className="mt-1 ml-4 pl-3 border-l border-identra-border-subtle space-y-0.5">
+                      <button
+                        onClick={() => setTheme("dark")}
+                        className="w-full flex items-center justify-between gap-2 px-2 py-2 rounded-md text-sm text-identra-text-primary hover:bg-identra-surface-elevated transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Moon className="w-4 h-4 text-identra-text-tertiary" />
+                          <span>Dark</span>
+                        </div>
+                        {theme === "dark" && <Check className="w-4 h-4 text-identra-primary shrink-0" />}
+                      </button>
+                      <button
+                        onClick={() => setTheme("grey")}
+                        className="w-full flex items-center justify-between gap-2 px-2 py-2 rounded-md text-sm text-identra-text-primary hover:bg-identra-surface-elevated transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Circle className="w-4 h-4 text-identra-text-tertiary" />
+                          <span>Grey</span>
+                        </div>
+                        {theme === "grey" && <Check className="w-4 h-4 text-identra-primary shrink-0" />}
+                      </button>
+                      <button
+                        onClick={() => setTheme("light")}
+                        className="w-full flex items-center justify-between gap-2 px-2 py-2 rounded-md text-sm text-identra-text-primary hover:bg-identra-surface-elevated transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Sun className="w-4 h-4 text-identra-text-tertiary" />
+                          <span>Light</span>
+                        </div>
+                        {theme === "light" && <Check className="w-4 h-4 text-identra-primary shrink-0" />}
+                      </button>
+                    </div>
+                  )}
                 </li>
                 <li>
                   <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm text-identra-text-primary hover:bg-identra-surface-elevated transition-colors">

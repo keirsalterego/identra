@@ -8,32 +8,26 @@ export default {
     extend: {
       colors: {
         identra: {
-          // Near-black foundation - infrastructure palette
-          bg: '#09090b',
-          surface: '#0f0f11',
-          'surface-elevated': '#14141a',
-          'surface-hover': '#18181d',
-          border: '#1f1f24',
-          'border-subtle': '#17171c',
-          
-          // Single subtle accent - system state indicator
-          primary: '#52525b',      // Neutral zinc for focus
-          'primary-light': '#5a5a63',
-          'primary-dark': '#3f3f46',
-          
-          // Status - functional only
-          success: '#3a3a3a',
-          warning: '#3a3a3a',
-          error: '#3a3a3a',
-          active: '#52525b',    // System active state
-          
-          // High-contrast text hierarchy
+          // Theme-aware via CSS variables (dark/light in App.css)
+          bg: 'var(--identra-bg)',
+          surface: 'var(--identra-surface)',
+          'surface-elevated': 'var(--identra-surface-elevated)',
+          'surface-hover': 'var(--identra-surface-hover)',
+          border: 'var(--identra-border)',
+          'border-subtle': 'var(--identra-border-subtle)',
+          primary: 'var(--identra-primary)',
+          'primary-light': 'var(--identra-primary-light)',
+          'primary-dark': 'var(--identra-primary-dark)',
+          success: 'var(--identra-success)',
+          warning: 'var(--identra-warning)',
+          error: 'var(--identra-error)',
+          active: 'var(--identra-active)',
           text: {
-            primary: '#fafafa',
-            secondary: '#d4d4d8',
-            tertiary: '#a1a1aa',
-            muted: '#71717a',
-            disabled: '#52525b',
+            primary: 'var(--identra-text-primary)',
+            secondary: 'var(--identra-text-secondary)',
+            tertiary: 'var(--identra-text-tertiary)',
+            muted: 'var(--identra-text-muted)',
+            disabled: 'var(--identra-text-disabled)',
           }
         }
       },
