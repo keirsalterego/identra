@@ -9,22 +9,23 @@ default:
 # Run the Desktop App (Tauri + React) - Manish + OmmPrakash
 dev-desktop:
     @echo "Starting Identra Desktop App..."
-    cd clients/ghost-desktop && yarn install && LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 yarn tauri dev
+    cd clients/ghost-desktop && yarn install && yarn tauri dev
 
 # Run the Tunnel Gateway (Rust gRPC Service) - Sarthak
 dev-gateway:
     @echo "Starting Tunnel Gateway..."
-    cargo run --bin tunnel-gateway
+    # cd ensures we load the local .env file correctly
+    cd apps/tunnel-gateway && cargo run
 
 # Run the Local Vault Daemon (Rust Secure Storage) - Sarthak
 dev-vault:
     @echo "Starting Vault Daemon..."
-    cargo run --bin vault-daemon
+    cd apps/vault-daemon && cargo run
 
 # Run the Brain Service (Python FastAPI + RAG) - Sailesh
 dev-brain:
     @echo "Starting Brain Service..."
-    cd apps/brain-service && python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt && python main.py
+    cd apps/brain-service && (test -d .venv || python3 -m venv .venv) && source .venv/bin/activate && pip install -r requirements.txt && python main.py
 
 # Run all backend services in parallel (Gateway + Vault + Brain)
 dev-backend:
@@ -37,7 +38,7 @@ dev-all:
     just db-up
     @sleep 2
     just dev-backend &
-    @sleep 1
+    @sleep 2
     just dev-desktop
 
 # =============================================================================
