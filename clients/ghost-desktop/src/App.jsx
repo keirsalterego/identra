@@ -1,12 +1,22 @@
 import { useEffect, useState } from "react";
 import ChatInterface from "./pages/ChatInterface";
 import Launcher from "./pages/Launcher";
+import Onboarding from "./pages/Onboarding";
 
 export default function App() {
   const [isReady, setIsReady] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   
   useEffect(() => {
     console.log("App mounted, pathname:", globalThis.location.pathname);
+    
+    // Check if onboarding is needed (only for main window)
+    const isLauncher = globalThis.location.pathname === '/launcher.html';
+    if (!isLauncher) {
+      const onboarded = localStorage.getItem("identra-onboarded");
+      setShowOnboarding(!onboarded);
+    }
+    
     setIsReady(true);
   }, []);
 
@@ -24,6 +34,11 @@ export default function App() {
   }
 
   const isLauncher = globalThis.location.pathname === '/launcher.html';
+  
+  // Show onboarding if needed
+  if (showOnboarding && !isLauncher) {
+    return <Onboarding onComplete={() => setShowOnboarding(false)} />;
+  }
   
   console.log("Rendering:", isLauncher ? "Launcher" : "ChatInterface");
   

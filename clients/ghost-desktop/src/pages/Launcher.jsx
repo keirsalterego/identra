@@ -49,12 +49,33 @@ export default function Launcher() {
     setIsProcessing(true);
 
     try {
-      const response = await invoke("vault_memory", { content: userMessage.content });
-      
+      let responseContent;
+
+      // Check if it's a search query
+      if (query.toLowerCase().startsWith("/search") || query.toLowerCase().includes("search for")) {
+        const searchQuery = query.replace(/^\/search\s*/i, "").replace(/search for\s*/i, "");
+        const results = await invoke("semantic_search", { query: searchQuery });
+
+        if (results && results.length > 0) {
+          responseContent = "Here are the top results from your vault:\n\n" +
+            results.map(r => `• ${r.content.substring(0, 100)}...`).join("\n");
+        } else {
+          responseContent = "No relevant memories found in your vault.";
+        }
+      } else {
+        // Default to Chat
+        const response = await invoke("chat_with_ai", {
+          message: userMessage.content,
+          model: "claude", // Default model for Launcher
+          conversationHistory: []
+        });
+        responseContent = response.message;
+      }
+
       const assistantMessage = {
         id: Date.now() + 1,
         role: "assistant",
-        content: response
+        content: responseContent
       };
 
       setMessages(prev => [...prev, assistantMessage]);
@@ -72,18 +93,18 @@ export default function Launcher() {
   };
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      width: '100vw', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
+    <div style={{
+      minHeight: '100vh',
+      width: '100vw',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
       padding: '40px',
       background: 'transparent',
       overflow: 'hidden'
     }}>
       <div className="w-full max-w-3xl flex flex-col gap-5 items-center" style={{ background: 'transparent' }}>
-        
+
         {/* Title - Refined typography */}
         <div className="text-center space-y-1.5">
           <h1 className="text-2xl font-semibold text-identra-text-primary tracking-tight">
@@ -150,15 +171,14 @@ export default function Launcher() {
         {messages.length > 0 && (
           <div className="w-full bg-identra-bg border border-identra-border shadow-2xl p-5 max-h-[450px] overflow-y-auto space-y-3">
             {messages.map((msg) => (
-              <div 
-                key={msg.id} 
+              <div
+                key={msg.id}
                 className={`flex flex-col gap-1 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
               >
-                <div className={`px-3 py-2 max-w-[90%] ${
-                  msg.role === 'user' 
-                    ? 'bg-identra-surface-elevated border border-identra-border text-identra-text-primary' 
-                    : 'text-identra-text-primary'
-                }`}>
+                <div className={`px-3 py-2 max-w-[90%] ${msg.role === 'user'
+                  ? 'bg-identra-surface-elevated border border-identra-border text-identra-text-primary'
+                  : 'text-identra-text-primary'
+                  }`}>
                   <p className="text-sm leading-relaxed">{msg.content}</p>
                 </div>
               </div>
@@ -180,7 +200,7 @@ export default function Launcher() {
 
         {/* Footer Status - Compact */}
         <div className="flex items-center gap-2 text-[9px] text-identra-text-muted tracking-[0.1em] font-semibold">
-          <span>IDENTRA OS V1.0</span>
+          <span>IDENTRA OS Alpha 0.1</span>
           <span>•</span>
           <div className="flex items-center gap-1.5">
             <div className="w-1 h-1 rounded-full bg-identra-active"></div>
