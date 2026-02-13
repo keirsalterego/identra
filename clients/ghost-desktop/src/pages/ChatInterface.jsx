@@ -814,7 +814,6 @@ export default function ChatInterface() {
             </div>
           )}
         </div>
-        {/* End of Chat Messages Area */}
           </>
         )}
       </main>

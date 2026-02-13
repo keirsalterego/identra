@@ -27,13 +27,16 @@ pub struct MemoryModel {
     pub updated_at: i64,
 }
 
+use crate::auth::supabase_client::SupabaseClient;
+
 pub struct MemoryServiceImpl {
     db: Arc<MemoryDatabase>,
     embedder: Arc<Mutex<TextEmbedding>>, 
+    supabase: Arc<SupabaseClient>,
 }
 
 impl MemoryServiceImpl {
-    pub fn new(db: Arc<MemoryDatabase>) -> Self {
+    pub fn new(db: Arc<MemoryDatabase>, supabase: Arc<SupabaseClient>) -> Self {
         tracing::info!("🧠 Initializing Neural Engine...");
         
         let options = InitOptions::new(EmbeddingModel::AllMiniLML6V2)
@@ -44,7 +47,8 @@ impl MemoryServiceImpl {
 
         Self { 
             db, 
-            embedder: Arc::new(Mutex::new(embedder)) 
+            embedder: Arc::new(Mutex::new(embedder)),
+            supabase,
         }
     }
     
@@ -64,11 +68,30 @@ impl MemoryServiceImpl {
         embeddings.into_iter().next()
             .ok_or_else(|| Status::internal("No embedding generated"))
     }
+
+    async fn check_auth<T>(&self, req: &Request<T>) -> Result<String, Status> {
+        let token = req.metadata().get("authorization")
+            .ok_or_else(|| Status::unauthenticated("Missing authorization token"))?
+            .to_str()
+            .map_err(|_| Status::unauthenticated("Invalid token format"))?;
+
+        let token = if token.starts_with("Bearer ") {
+            &token[7..]
+        } else {
+            return Err(Status::unauthenticated("Invalid token format"));
+        };
+
+        let user = self.supabase.verify_token(token).await
+            .map_err(|_| Status::unauthenticated("Invalid or expired token"))?;
+            
+        Ok(user.sub)
+    }
 }
 
 #[tonic::async_trait]
 impl MemoryService for MemoryServiceImpl {
     async fn store_memory(&self, req: Request<StoreMemoryRequest>) -> Result<Response<StoreMemoryResponse>, Status> {
+        let user_id = self.check_auth(&req).await?;
         let r = req.into_inner();
         if r.content.trim().is_empty() { return Err(Status::invalid_argument("Content required")); }
         
@@ -77,18 +100,19 @@ impl MemoryService for MemoryServiceImpl {
         
         let embedding = self.generate_embedding(&r.content)?;
         
-        self.db.store_memory(&id, &r.content, &embedding, &r.metadata, &r.tags, now, now)
+        self.db.store_memory(&user_id, &id, &r.content, &embedding, &r.metadata, &r.tags, now, now)
             .await
             .map_err(|e| Status::internal(format!("DB Error: {}", e)))?;
         
-        tracing::info!("Indexed memory {}", id);
+        tracing::info!("Indexed memory {} for user {}", id, user_id);
         Ok(Response::new(StoreMemoryResponse { memory_id: id, success: true, message: "Saved to Cloud".into() }))
     }
     
     async fn search_memories(&self, req: Request<SearchMemoriesRequest>) -> Result<Response<SearchMemoriesResponse>, Status> {
+        let user_id = self.check_auth(&req).await?;
         let r = req.into_inner();
         
-        let matches = self.db.search_memories(&r.query_embedding, r.limit, r.similarity_threshold)
+        let matches = self.db.search_memories(&user_id, &r.query_embedding, r.limit, r.similarity_threshold)
             .await
             .map_err(|e| Status::internal(format!("Search failed: {}", e)))?;
         
@@ -109,10 +133,11 @@ impl MemoryService for MemoryServiceImpl {
     }
 
     async fn query_memories(&self, req: Request<QueryMemoriesRequest>) -> Result<Response<QueryMemoriesResponse>, Status> {
+        let user_id = self.check_auth(&req).await?;
         let r = req.into_inner();
         let limit = if r.limit > 0 { r.limit } else { 50 };
         
-        let results = self.db.query_memories(&r.query, limit)
+        let results = self.db.query_memories(&user_id, &r.query, limit)
             .await
             .map_err(|e| Status::internal(e.to_string()))?;
             
@@ -127,8 +152,9 @@ impl MemoryService for MemoryServiceImpl {
     }
     
     async fn get_memory(&self, req: Request<GetMemoryRequest>) -> Result<Response<GetMemoryResponse>, Status> {
+        let user_id = self.check_auth(&req).await?;
         let r = req.into_inner();
-        let result = self.db.get_memory(&r.memory_id)
+        let result = self.db.get_memory(&user_id, &r.memory_id)
             .await
             .map_err(|e| Status::internal(e.to_string()))?;
         
@@ -144,8 +170,9 @@ impl MemoryService for MemoryServiceImpl {
     }
 
     async fn delete_memory(&self, req: Request<DeleteMemoryRequest>) -> Result<Response<DeleteMemoryResponse>, Status> {
+        let user_id = self.check_auth(&req).await?;
         let r = req.into_inner();
-        let success = self.db.delete_memory(&r.memory_id)
+        let success = self.db.delete_memory(&user_id, &r.memory_id)
             .await
             .map_err(|e| Status::internal(e.to_string()))?;
             
@@ -153,9 +180,10 @@ impl MemoryService for MemoryServiceImpl {
     }
 
     async fn get_recent_memories(&self, req: Request<GetRecentMemoriesRequest>) -> Result<Response<GetRecentMemoriesResponse>, Status> {
+        let user_id = self.check_auth(&req).await?;
         let r = req.into_inner();
         
-        let results = self.db.get_recent_memories(r.limit)
+        let results = self.db.get_recent_memories(&user_id, r.limit)
             .await
             .map_err(|e| Status::internal(format!("Database error: {}", e)))?;
 

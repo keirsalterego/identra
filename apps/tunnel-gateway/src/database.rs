@@ -28,6 +28,7 @@ impl MemoryDatabase {
 
     pub async fn store_memory(
         &self,
+        user_id: &str,
         id: &str,
         content: &str,
         embedding: &[f32],
@@ -37,16 +38,18 @@ impl MemoryDatabase {
         updated_at: i64,
     ) -> Result<(), sqlx::Error> {
         let uuid = Uuid::parse_str(id).unwrap_or_default();
+        let uid = Uuid::parse_str(user_id).unwrap_or_default();
         let metadata_json = serde_json::to_value(metadata).unwrap();
 
         // Use pgvector syntax for insertion
         sqlx::query(
             r#"
-            INSERT INTO memories (id, content, embedding, metadata, tags, created_at, updated_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            INSERT INTO memories (id, user_id, content, embedding, metadata, tags, created_at, updated_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             "#
         )
         .bind(uuid)
+        .bind(uid)
         .bind(content)
         .bind(embedding) 
         .bind(metadata_json)
@@ -61,16 +64,18 @@ impl MemoryDatabase {
 
     pub async fn search_memories(
         &self,
+        user_id: &str,
         embedding: &[f32],
         limit: i32,
         threshold: f32,
     ) -> Result<Vec<MemoryModel>, sqlx::Error> {
+        let uid = Uuid::parse_str(user_id).unwrap_or_default();
         // Native Vector Search: 1 - (embedding <=> query)
         let rows = sqlx::query(
             r#"
             SELECT id, content, metadata, tags, created_at, updated_at
             FROM memories
-            WHERE 1 - (embedding <=> $1) > $2
+            WHERE user_id = $4 AND (1 - (embedding <=> $1) > $2)
             ORDER BY embedding <=> $1
             LIMIT $3
             "#
@@ -78,6 +83,7 @@ impl MemoryDatabase {
         .bind(embedding)
         .bind(threshold)
         .bind(limit)
+        .bind(uid)
         .fetch_all(&self.pool)
         .await?;
 
@@ -85,28 +91,33 @@ impl MemoryDatabase {
     }
 
     // NEW: Fetch recent memories sorted by time
-    pub async fn get_recent_memories(&self, limit: i32) -> Result<Vec<MemoryModel>, sqlx::Error> {
+    pub async fn get_recent_memories(&self, user_id: &str, limit: i32) -> Result<Vec<MemoryModel>, sqlx::Error> {
+        let uid = Uuid::parse_str(user_id).unwrap_or_default();
         let limit = if limit <= 0 { 50 } else { limit };
         
         let rows = sqlx::query(
             r#"
             SELECT id, content, metadata, tags, created_at, updated_at 
             FROM memories 
+            WHERE user_id = $2
             ORDER BY created_at DESC 
             LIMIT $1
             "#
         )
         .bind(limit)
+        .bind(uid)
         .fetch_all(&self.pool)
         .await?;
 
         self.map_rows(rows)
     }
 
-    pub async fn get_memory(&self, id: &str) -> Result<Option<MemoryModel>, sqlx::Error> {
+    pub async fn get_memory(&self, user_id: &str, id: &str) -> Result<Option<MemoryModel>, sqlx::Error> {
         let uuid = Uuid::parse_str(id).unwrap_or_default();
-        let row = sqlx::query("SELECT id, content, metadata, tags, created_at, updated_at FROM memories WHERE id = $1")
+        let uid = Uuid::parse_str(user_id).unwrap_or_default();
+        let row = sqlx::query("SELECT id, content, metadata, tags, created_at, updated_at FROM memories WHERE id = $1 AND user_id = $2")
             .bind(uuid)
+            .bind(uid)
             .fetch_optional(&self.pool)
             .await?;
             
@@ -120,23 +131,27 @@ impl MemoryDatabase {
         }
     }
 
-    pub async fn query_memories(&self, query: &str, limit: i32) -> Result<Vec<MemoryModel>, sqlx::Error> {
+    pub async fn query_memories(&self, user_id: &str, query: &str, limit: i32) -> Result<Vec<MemoryModel>, sqlx::Error> {
+        let uid = Uuid::parse_str(user_id).unwrap_or_default();
         let pattern = format!("%{}%", query);
         let rows = sqlx::query(
-            "SELECT id, content, metadata, tags, created_at, updated_at FROM memories WHERE content ILIKE $1 LIMIT $2"
+            "SELECT id, content, metadata, tags, created_at, updated_at FROM memories WHERE user_id = $3 AND content ILIKE $1 LIMIT $2"
         )
         .bind(pattern)
         .bind(limit)
+        .bind(uid)
         .fetch_all(&self.pool)
         .await?;
         
         self.map_rows(rows)
     }
 
-    pub async fn delete_memory(&self, id: &str) -> Result<bool, sqlx::Error> {
+    pub async fn delete_memory(&self, user_id: &str, id: &str) -> Result<bool, sqlx::Error> {
         let uuid = Uuid::parse_str(id).unwrap_or_default();
-        let result = sqlx::query("DELETE FROM memories WHERE id = $1")
+        let uid = Uuid::parse_str(user_id).unwrap_or_default();
+        let result = sqlx::query("DELETE FROM memories WHERE id = $1 AND user_id = $2")
             .bind(uuid)
+            .bind(uid)
             .execute(&self.pool)
             .await?;
         Ok(result.rows_affected() > 0)

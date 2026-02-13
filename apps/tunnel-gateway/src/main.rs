@@ -28,12 +28,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Initialize Supabase client for authentication
     let supabase = Arc::new(SupabaseClient::new()?);
-    tracing::info!("Supabase Auth client initialized");
-
     // Initialize services
-    let memory_service = MemoryServiceImpl::new(db.clone());
-    let auth_service = AuthServiceImpl::new(supabase);
+    let memory_service = MemoryServiceImpl::new(db.clone(), supabase.clone());
+    let auth_service = AuthServiceImpl::new(supabase.clone());
     let vault_service = VaultServiceImpl::new();
+
+    // --- Admin Seeding ---
+    if let (Ok(email), Ok(password)) = (env::var("ADMIN_USERNAME"), env::var("ADMIN_PASSWORD")) {
+        tracing::info!("Attempting to seed admin user: {}", email);
+        match supabase.admin_create_user(&email, &password, "admin").await {
+            Ok(id) => tracing::info!("✅ Admin user created/verified (ID: {})", id),
+            Err(e) => tracing::warn!("⚠️ Admin user seeding note: {}", e), 
+        }
+    }
+    // ---------------------
 
     let addr = "[::1]:50051".parse()?;
     tracing::info!("Listening on {}", addr);

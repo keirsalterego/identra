@@ -235,6 +235,49 @@ impl SupabaseClient {
             Err("Failed to sign out".to_string())
         }
     }
+
+    pub async fn admin_create_user(
+        &self,
+        email: &str,
+        password: &str,
+        username: &str,
+    ) -> Result<String, String> {
+        let url = format!("{}/auth/v1/admin/users", self.url);
+        
+        let payload = serde_json::json!({
+            "email": email,
+            "password": password,
+            "email_confirm": true,
+            "user_metadata": {
+                "username": username
+            }
+        });
+
+        let response = self.client
+            .post(&url)
+            .header("apikey", &self.service_role_key)
+            .header("Authorization", format!("Bearer {}", self.service_role_key))
+            .header("Content-Type", "application/json")
+            .json(&payload)
+            .send()
+            .await
+            .map_err(|e| format!("Request failed: {}", e))?;
+
+        if response.status().is_success() {
+            let json: serde_json::Value = response
+                .json()
+                .await
+                .map_err(|e| format!("Failed to parse response: {}", e))?;
+            
+            Ok(json["id"].as_str().unwrap_or("unknown").to_string())
+        } else {
+            let error = response
+                .text()
+                .await
+                .unwrap_or_else(|_| "Unknown error".to_string());
+            Err(format!("Failed to create admin: {}", error))
+        }
+    }
 }
 
 impl Default for SupabaseClient {

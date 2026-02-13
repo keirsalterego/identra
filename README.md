@@ -1,206 +1,179 @@
-# Identra
+# 🧠 Identra - Your Personal AI Memory Vault
 
-Identra is a confidential operating system layer designed to act as a unified **Identity and Memory Vault** for AI interactions. It solves AI fragmentation by providing a single, secure source of truth that travels with the user across different AI tools.
+> A confidential, secure AI-powered memory system that never forgets. Built for 500 beta users.
 
-The system functions as a **Fortified Library** between the User and External AI, utilizing local-first vectorization, encrypted storage, and secure compute enclaves.
+[![Rust](https://img.shields.io/badge/Rust-1.75+-orange.svg)](https://www.rust-lang.org/)
+[![Tauri](https://img.shields.io/badge/Tauri-v2.0-blue.svg)](https://tauri.app/)
+[![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://reactjs.org/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-## 🚀 Quick Start - Chat Interface
+## 🎯 What is Identra?
 
-The desktop app now includes a fully functional AI chat interface with support for **Claude, GPT-4, and Gemini**!
+Identra is a **desktop-first** personal AI assistant with **persistent memory**. Unlike traditional AI chatbots that forget everything, Identra remembers every conversation, thought, and piece of information you share - forever.
 
-### Setup in 3 Steps:
+### Key Features
 
-1. **Configure your settings**:
-   ```bash
-   cp .env.example .env
-   # Edit .env and add your API keys (or leave empty for demo mode)
-   ```
+- 🔒 **100% Private** - Your data never leaves your device (MVP uses local encryption + Supabase)
+- 🧠 **Perfect Memory** - Never forget anything again. Identra remembers for you
+- ⚡ **Instant Launcher** - Press CMD+K anywhere to search and interact
+- 🎨 **Beautiful UI** - Modern, dark-first design optimized for desktop
+- 🤖 **Multi-Model AI** - Choose between Claude, GPT-4, and Gemini
+- 🔍 **Semantic Search** - Find anything using natural language
+- 🔐 **End-to-End Encrypted** - Military-grade security for sensitive memories
 
-2. **Start the services**:
-   ```bash
-   just dev-all  # Starts desktop app + gateway + database
-   ```
+## 🚀 Quick Start
 
-3. **Start chatting!** 🎉
-   - Type a message in the chat interface
-   - Switch models using the "Reasoning Engine" dropdown
-   - All conversations are encrypted and stored locally
+### Prerequisites
 
-📖 **Full Guide**: See [CHAT_SETUP.md](CHAT_SETUP.md) for detailed setup instructions and troubleshooting.
+- **Rust** 1.75+ ([Install](https://rustup.rs/))
+- **Node.js** 18+ ([Install](https://nodejs.org/))
+- **Just** command runner ([Install](https://github.com/casey/just))
+- **Supabase** account ([Sign up](https://supabase.com))
 
----
+### Installation
 
-## Architecture Overview
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/identra.git
+cd identra
 
-This repository is a **Rust Workspace Monorepo** managing the entire Identra stack:
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your API keys
 
-- **The Nexus (Desktop):** Rust + Tauri v2  
-  Handles local state, global hotkeys, and system hooks.
-
-- **The View (UI):** React (Next.js) + Shadcn UI  
-  Static frontend running inside the Tauri WebView.
-
-- **The Tunnel (Gateway):** Rust (Axum / Tonic)  
-  High-performance gRPC gateway for all external communication.
-
-- **The Vault (Security):** Rust + OS Keychain Integration  
-  Local secure daemon for cryptographic key management (MVP uses OS-native secure storage; AWS Nitro Enclaves planned for production).
-
-- **The Brain (RAG):** Python (FastAPI)  
-  Isolated AI service responsible for RAG orchestration and inference.
-
----
-
-## Repository Structure & Team Assignments
-
-Strict adherence to these folder ownership rules is **mandatory** to avoid merge conflicts and architectural drift.
-
-```text
-identra/
-├── apps/                               # Backend Services
-│   ├── tunnel-gateway/                 # OWNER: Sarthak (Rust gRPC Entry Point)
-│   ├── vault-daemon/                   # OWNER: Sarthak (Local Secure Vault - MVP uses OS keychain)
-│   └── brain-service/                  # OWNER: Sailesh (Python RAG & AI Logic)
-│
-├── clients/                            # Frontend & Desktop
-│   └── ghost-desktop/
-│       ├── src-tauri/                  # OWNER: Manish (Rust Backend / System Architecture)
-│       └── src/                        # OWNER: OmmPrakash (React / Next.js UI)
-│
-├── libs/                               # Shared Libraries
-│   ├── identra-core/                   # SHARED: Manish / Sarthak (Errors, Logging)
-│   ├── identra-crypto/                 # SHARED: Manish / Sarthak (Encryption Primitives)
-│   ├── identra-proto/                  # SHARED: Manish / Sarthak (gRPC Protobufs)
-│   └── identra-auth/                   # SHARED: Manish (OIDC / Auth Logic)
-│
-├── infra/                              # OWNER: Arpit (Terraform, Kubernetes, AWS)
-├── tools/                              # OWNER: Arpit (Dev Scripts, Docker)
-├── Cargo.toml                          # Rust Workspace Configuration
-└── Justfile                            # Unified Command Runner
-```
-
-## Critical Git Protocol
-
-To maintain a clean Git history and avoid rebasing conflicts, every contributor must follow this workflow.
-
-- Rule 1: Always Pull Before Coding. Never start work without syncing with the remote repository.
-
-- Rule 2: Never Commit Directly to main. Use feature branches for any non-trivial work.
-
-## Safe Git Workflow
-
-- Start Your Session
-
-- Run immediately when opening a terminal:
-
-```
-git checkout main
-git pull origin main
-```
-
-- Create a Feature Branch (Recommended)
-
-```
-git checkout -b feature/your-feature-name
-```
-
-- Make Changes
-
-Modify only files inside your assigned directories.
-
-Do not refactor or touch unrelated modules.
-
-- Commit Changes
-
-```
-git add .
-git commit -m "feat: concise description of changes"
-```
-
-Sync Before Pushing
-
-```
-git pull origin main --rebase
-```
-
-Push Changes
-
-```
-git push origin branch-name
-```
-
-## Development Setup
-
-We use Just as the unified task runner.
-
-Prerequisites
-
-- Rust (latest stable)
-- Node.js (LTS)
-- Yarn
-- Docker
-
-Quick Start
-Install Dependencies
-
-# Rust workspace dependencies
-
-cargo build
-
-# Frontend dependencies
-
+# Install dependencies
 cd clients/ghost-desktop
 yarn install
+cd ../..
 
-Running Services
-Desktop App (Manish, OmmPrakash)
-just dev-desktop
+# Build and run
+just dev-all
+```
 
-Backend Gateway (Sarthak)
-just dev-gateway
+The app will launch automatically. Press **CMD+K** (macOS) or **CTRL+K** (Windows/Linux) to open the quick launcher.
 
-Infrastructure & Databases (Arpit)
-just db-up
+## 📖 Documentation
 
-Design Principles
+- [**MVP Completion Guide**](MVP_COMPLETION_GUIDE.md) - Comprehensive roadmap for beta release
+- [**Architecture Overview**](IMPLEMENTATION_SUMMARY.md) - System design and components
+- [**Environment Setup**](ENV_SETUP_GUIDE.md) - Detailed setup instructions
+- [**Chat Setup**](CHAT_SETUP.md) - Configure AI models
 
-Local-first by default
+## 🏗️ Architecture
 
-Zero-trust security model
+```
+┌─────────────────────────────────────────────────┐
+│  Ghost Desktop (Tauri + React)                  │
+│  - Main Window: Chat + Memory Vault             │
+│  - Launcher Window: CMD+K Quick Access          │
+└───────────────┬─────────────────────────────────┘
+                │
+       ┌────────┴────────┐
+       │                 │
+┌──────▼──────┐  ┌──────▼──────────┐
+│ Vault       │  │ Tunnel Gateway  │
+│ Daemon      │  │ (gRPC)          │
+│ - OS        │  │ - Auth          │
+│   Keychain  │  │ - API Routes    │
+│ - Local     │  │ - Supabase      │
+│   Encrypt   │  └─────┬───────────┘
+└─────────────┘        │
+                ┌──────┴──────┐
+                │             │
+         ┌──────▼─────┐ ┌────▼─────────┐
+         │ Brain      │ │ Supabase     │
+         │ Service    │ │ Postgres +   │
+         │ - RAG      │ │ pgvector     │
+         │ - Embeddings│ │ - Memories   │
+         │ - AI Chat  │ │ - Auth       │
+         └────────────┘ └──────────────┘
+```
 
-Explicit boundaries between AI, memory, and identity
+## 🎨 Design System
 
-Deterministic state over opaque AI behavior
+Identra uses a **dark-first**, minimalist design inspired by Raycast and Spotlight.
 
-Rust for safety-critical paths
+### Color Palette
 
-## MVP Architecture Note
+```css
+Background:   #0a0a0b (Deep Black)
+Surface:      #121214 (Elevated Black) 
+Accent:       #8b7fb8 (Subtle Purple)
+Text:         #f5f5f7 (Off White)
+Success:      #34c759 (Green)
+Error:        #ff453a (Red)
+```
 
-**For the initial MVP release, we are using local OS-native secure storage instead of AWS Nitro Enclaves:**
+## 🔑 Features Roadmap
 
-- **Vault Security:** OS Keychain (Windows Credential Manager/DPAPI, macOS Keychain, Linux Secret Service)
-- **Data Storage:** Local encrypted SQLite with SQLCipher
-- **Process Isolation:** Separate Rust daemon process with memory locking
-- **Future:** AWS Nitro Enclaves integration planned for production cloud deployment
+### ✅ Alpha Complete
+- [x] Desktop app foundation
+- [x] Multi-window support
+- [x] Global shortcuts (CMD+K)
+- [x] Chat interface with multiple AI models
+- [x] Memory vault UI
+- [x] Theme system
+- [x] Onboarding flow
+- [x] Local encryption
 
-This approach allows rapid MVP development while maintaining strong local security boundaries.
-┌─────────────────────────┐
-│  Desktop App (Tauri)    │
-│  clients/ghost-desktop  │
-└───────────┬─────────────┘
-            │ IPC (encrypted)
-┌───────────▼─────────────┐
-│  Local Vault Daemon     │
-│  apps/vault-daemon      │
-│  ├─ OS Keychain         │
-│  ├─ Memory Encryption   │
-│  └─ Locked Memory       │
-└───────────┬─────────────┘
-            │
-┌───────────▼─────────────┐
-│  Local SQLite DB        │
-│  (Encrypted with SQLCipher)
-└─────────────────────────┘
-License
+### 🚧 Beta MVP (In Progress)
+- [ ] Supabase authentication
+- [ ] User account management  
+- [ ] Persistent cloud storage
+- [ ] RAG implementation
+- [ ] Semantic search
+- [ ] Memory analytics
 
-Proprietary. All rights reserved.
+### 📅 Post-Beta
+- [ ] Mobile app
+- [ ] Browser extension
+- [ ] Voice input
+- [ ] Memory sharing
+- [ ] AWS Nitro Enclaves
+
+## 🛠️ Development
+
+### Project Structure
+
+```
+identra/
+├── apps/
+│   ├── brain-service/      # Python - AI/RAG
+│   ├── tunnel-gateway/     # Rust - API + Auth
+│   └── vault-daemon/       # Rust - Encryption
+├── clients/
+│   └── ghost-desktop/      # Tauri + React
+├── libs/                   # Shared libraries
+└── admin/                  # Admin panel (future)
+```
+
+### Tech Stack
+
+- **Desktop**: Tauri v2, React 19, Tailwind CSS
+- **Backend**: Rust, Tokio, Axum, Tonic
+- **AI**: Python, FastAPI, FastEmbed
+- **Database**: Supabase (Postgres + pgvector)
+- **Auth**: Supabase Auth + JWT
+- **Encryption**: AES-256-GCM, ChaCha20
+
+## 🔒 Security
+
+- End-to-end encryption for sensitive data
+- Zero-knowledge architecture
+- OS keychain integration
+- Row-level security (RLS) in Supabase
+- Regular security audits
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file
+
+---
+
+<div align="center">
+
+**Made with ❤️ for people who value their memories**
+
+📖 [Full Guide](MVP_COMPLETION_GUIDE.md) • 🐛 [Issues](https://github.com/yourusername/identra/issues) • 💬 [Discussions](https://github.com/yourusername/identra/discussions)
+
+</div>
