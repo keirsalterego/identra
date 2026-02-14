@@ -33,6 +33,8 @@ pub fn run() {
             commands::semantic_search,  // Vector Search
             commands::fetch_history,    // Recent History
             commands::chat_with_ai,     // AI Chat (NEW)
+            commands::update_memory,    // Update Memory (NEW)
+            commands::delete_memory,    // Delete Memory (NEW)
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

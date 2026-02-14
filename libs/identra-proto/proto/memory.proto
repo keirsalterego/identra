@@ -10,6 +10,9 @@ service MemoryService {
   rpc DeleteMemory (DeleteMemoryRequest) returns (DeleteMemoryResponse);
   rpc SearchMemories (SearchMemoriesRequest) returns (SearchMemoriesResponse);
   
+  // NEW: Update memory content
+  rpc UpdateMemory (UpdateMemoryRequest) returns (UpdateMemoryResponse);
+
   // NEW: Fetch recent chat history
   rpc GetRecentMemories (GetRecentMemoriesRequest) returns (GetRecentMemoriesResponse);
 }
@@ -87,4 +90,15 @@ message GetRecentMemoriesRequest {
 
 message GetRecentMemoriesResponse {
   repeated Memory memories = 1;
+}
+
+message UpdateMemoryRequest {
+  string memory_id = 1;
+  string content = 2;
+  repeated string tags = 3;
+}
+
+message UpdateMemoryResponse {
+  bool success = 1;
+  string message = 2;
 }

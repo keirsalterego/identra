@@ -2,6 +2,7 @@ use identra_proto::memory::{
     memory_service_client::MemoryServiceClient,
     StoreMemoryRequest, QueryMemoriesRequest, 
     SearchMemoriesRequest, GetRecentMemoriesRequest,
+    UpdateMemoryRequest, DeleteMemoryRequest,
 };
 use identra_proto::auth::{
     auth_service_client::AuthServiceClient,
@@ -124,6 +125,46 @@ impl GrpcClient {
             .collect();
 
         Ok(result)
+    }
+
+    pub async fn update_memory(
+        &mut self,
+        memory_id: String,
+        content: String,
+        tags: Vec<String>,
+    ) -> Result<String, Box<dyn std::error::Error>> {
+        let request = tonic::Request::new(UpdateMemoryRequest {
+            memory_id,
+            content,
+            tags,
+        });
+
+        let response = self.memory_client.update_memory(request).await?;
+        let resp = response.into_inner();
+
+        if resp.success {
+            Ok(resp.message)
+        } else {
+            Err(format!("Update failed: {}", resp.message).into())
+        }
+    }
+
+    pub async fn delete_memory(
+        &mut self,
+        memory_id: String,
+    ) -> Result<String, Box<dyn std::error::Error>> {
+        let request = tonic::Request::new(DeleteMemoryRequest {
+            memory_id,
+        });
+
+        let response = self.memory_client.delete_memory(request).await?;
+        let resp = response.into_inner();
+
+        if resp.success {
+            Ok(resp.message)
+        } else {
+            Err(format!("Delete failed: {}", resp.message).into())
+        }
     }
 
     // --- AUTH METHODS ---

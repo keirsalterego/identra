@@ -560,3 +560,35 @@ pub async fn fetch_history() -> Result<Vec<ConversationItem>, String> {
 
     Ok(items)
 }
+
+#[tauri::command]
+pub async fn update_memory(
+    memory_id: String,
+    content: String,
+    tags: Vec<String>
+) -> Result<String, String> {
+    let mut client = crate::grpc_client::GrpcClient::connect()
+        .await
+        .map_err(|e| format!("Connection failed: {}", e))?;
+
+    let message = client.update_memory(memory_id, content, tags)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(message)
+}
+
+#[tauri::command]
+pub async fn delete_memory(
+    memory_id: String
+) -> Result<String, String> {
+    let mut client = crate::grpc_client::GrpcClient::connect()
+        .await
+        .map_err(|e| format!("Connection failed: {}", e))?;
+
+    let message = client.delete_memory(memory_id)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(message)
+}

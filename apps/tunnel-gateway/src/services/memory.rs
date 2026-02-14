@@ -7,6 +7,7 @@ use identra_proto::memory::{
     DeleteMemoryRequest, DeleteMemoryResponse,
     SearchMemoriesRequest, SearchMemoriesResponse,
     GetRecentMemoriesRequest, GetRecentMemoriesResponse,
+    UpdateMemoryRequest, UpdateMemoryResponse,
 };
 use crate::database::MemoryDatabase;
 use std::sync::{Arc, Mutex};
@@ -198,5 +199,23 @@ impl MemoryService for MemoryServiceImpl {
         }).collect();
         
         Ok(Response::new(GetRecentMemoriesResponse { memories }))
+    }
+    async fn update_memory(&self, req: Request<UpdateMemoryRequest>) -> Result<Response<UpdateMemoryResponse>, Status> {
+        let user_id = self.check_auth(&req).await?;
+        let r = req.into_inner();
+        
+        if r.content.trim().is_empty() { return Err(Status::invalid_argument("Content required")); }
+
+        let now = chrono::Utc::now().timestamp();
+        let embedding = self.generate_embedding(&r.content)?;
+        
+        let success = self.db.update_memory(&user_id, &r.memory_id, &r.content, &embedding, &r.tags, now)
+            .await
+            .map_err(|e| Status::internal(e.to_string()))?;
+            
+        Ok(Response::new(UpdateMemoryResponse { 
+            success, 
+            message: if success { "Updated".into() } else { "Not found".into() } 
+        }))
     }
 }

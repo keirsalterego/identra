@@ -157,6 +157,37 @@ impl MemoryDatabase {
         Ok(result.rows_affected() > 0)
     }
 
+    pub async fn update_memory(
+        &self,
+        user_id: &str,
+        id: &str,
+        content: &str,
+        embedding: &[f32],
+        tags: &[String],
+        updated_at: i64,
+    ) -> Result<bool, sqlx::Error> {
+        let uuid = Uuid::parse_str(id).unwrap_or_default();
+        let uid = Uuid::parse_str(user_id).unwrap_or_default();
+        
+        let result = sqlx::query(
+            r#"
+            UPDATE memories 
+            SET content = $1, embedding = $2, tags = $3, updated_at = $4 
+            WHERE id = $5 AND user_id = $6
+            "#
+        )
+        .bind(content)
+        .bind(embedding)
+        .bind(tags)
+        .bind(updated_at)
+        .bind(uuid)
+        .bind(uid)
+        .execute(&self.pool)
+        .await?;
+        
+        Ok(result.rows_affected() > 0)
+    }
+
     // Helper to map SQL rows to Rust structs
     fn map_rows(&self, rows: Vec<sqlx::postgres::PgRow>) -> Result<Vec<MemoryModel>, sqlx::Error> {
         let results = rows.into_iter().map(|row| {
