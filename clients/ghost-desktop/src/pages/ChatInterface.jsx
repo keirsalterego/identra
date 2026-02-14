@@ -201,6 +201,24 @@ export default function ChatInterface() {
     }
   };
 
+  const handleClearConversation = () => {
+    setMessages([]);
+    showNotification("Conversation cleared");
+  };
+
+  const handleAddToMemory = async (content) => {
+    try {
+      await invoke("vault_memory", {
+        content: content,
+        tags: ["chat_save"]
+      });
+      showNotification("Saved to Memory Vault");
+    } catch (error) {
+      console.error("Failed to save memory:", error);
+      showNotification("Failed to save to Vault");
+    }
+  };
+
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -623,7 +641,7 @@ export default function ChatInterface() {
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
-                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} group`}
                   >
                     <div className="w-[60%] flex flex-col gap-2">
                       <div className={`px-4 py-3 rounded-lg shadow-soft lighting-subtle transition-all duration-200 hover:shadow-medium ${msg.role === 'user'
@@ -641,6 +659,14 @@ export default function ChatInterface() {
                         <span className="text-[9px] text-identra-text-muted">
                           {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
+
+                        <button
+                          onClick={() => handleAddToMemory(msg.content)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-identra-text-tertiary hover:text-identra-primary"
+                          title="Save to Memory"
+                        >
+                          <Lock className="w-3 h-3" />
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -725,9 +751,17 @@ export default function ChatInterface() {
         <aside className="w-72 bg-identra-surface border-l border-identra-divider flex flex-col shadow-medium lighting-accent animate-slide-in-right">
           {/* System Status and Audits */}
           <div className="px-4 py-5 border-b border-identra-border-subtle">
-            <h3 className="text-[10px] font-semibold text-identra-text-secondary uppercase tracking-[0.1em] mb-4">
-              System Status
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[10px] font-semibold text-identra-text-secondary uppercase tracking-[0.1em]">
+                System Status
+              </h3>
+              <button
+                onClick={handleClearConversation}
+                className="text-[10px] text-identra-text-tertiary hover:text-red-400 transition-colors uppercase tracking-wider"
+              >
+                Clear Chat
+              </button>
+            </div>
             <div className="space-y-2.5">
               {systemStatus ? (
                 <>

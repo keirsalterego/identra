@@ -1,1 +1,29 @@
-fastapi
+# Identra Brain Service Dependencies
+# Python 3.10+
+
+# Web Framework
+fastapi==0.110.0
+uvicorn[standard]==0.27.1
+pydantic==2.6.1
+python-multipart==0.0.9
+
+# Embeddings & AI
+fastembed==0.2.2
+numpy==1.26.4
+anthropic==0.18.1
+openai==1.12.0
+google-generativeai==0.3.2
+
+# Optional: Advanced NLP (uncomment if needed)
+# transformers==4.37.2
+# torch==2.2.0
+# sentence-transformers==2.3.1
+
+# Utilities
+python-dotenv==1.0.1
+httpx==0.26.0
+
+# Database (optional for direct DB access)
+# asyncpg==0.29.0
+# sqlalchemy==2.0.25
+
