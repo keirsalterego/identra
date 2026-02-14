@@ -1,7 +1,6 @@
-use crate::error::{Result, VaultError};
-use keyring::Entry;
-use base64::{Engine as _, engine::general_purpose};
-use serde::{Serialize, Deserialize};
+use crate::error::Result;
+use base64::{engine::general_purpose, Engine as _};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Metadata stored alongside keys
@@ -35,15 +34,15 @@ impl WindowsKeyStorage {
         }
     }
     
-    fn get_entry(&self, key_id: &str) -> Result<Entry> {
-        Entry::new(&self.service_name, key_id)
-            .map_err(|e| VaultError::Keychain(format!("Failed to create entry: {}", e)))
+    fn get_entry(&self, key_id: &str) -> Result<keyring::Entry> {
+        keyring::Entry::new(&self.service_name, key_id)
+            .map_err(|e| crate::error::VaultError::Keychain(format!("Failed to create entry: {}", e)))
     }
     
-    fn get_metadata_entry(&self, key_id: &str) -> Result<Entry> {
+    fn get_metadata_entry(&self, key_id: &str) -> Result<keyring::Entry> {
         let metadata_key = format!("{}_metadata", key_id);
-        Entry::new(&self.service_name, &metadata_key)
-            .map_err(|e| VaultError::Keychain(format!("Failed to create metadata entry: {}", e)))
+        keyring::Entry::new(&self.service_name, &metadata_key)
+            .map_err(|e| crate::error::VaultError::Keychain(format!("Failed to create metadata entry: {}", e)))
     }
 }
 
@@ -55,15 +54,15 @@ impl KeyStorage for WindowsKeyStorage {
         let key_str = general_purpose::STANDARD.encode(key);
         entry
             .set_password(&key_str)
-            .map_err(|e| VaultError::Keychain(format!("Failed to store key: {}", e)))?;
+            .map_err(|e| crate::error::VaultError::Keychain(format!("Failed to store key: {}", e)))?;
         
         // Store metadata separately
         let metadata_entry = self.get_metadata_entry(key_id)?;
         let metadata_json = serde_json::to_string(&metadata)
-            .map_err(|e| VaultError::Keychain(format!("Failed to serialize metadata: {}", e)))?;
+            .map_err(|e| crate::error::VaultError::Keychain(format!("Failed to serialize metadata: {}", e)))?;
         metadata_entry
             .set_password(&metadata_json)
-            .map_err(|e| VaultError::Keychain(format!("Failed to store metadata: {}", e)))?;
+            .map_err(|e| crate::error::VaultError::Keychain(format!("Failed to store metadata: {}", e)))?;
         
         Ok(())
     }
@@ -73,19 +72,19 @@ impl KeyStorage for WindowsKeyStorage {
         let entry = self.get_entry(key_id)?;
         let key_str = entry
             .get_password()
-            .map_err(|e| VaultError::Keychain(format!("Failed to retrieve key: {}", e)))?;
+            .map_err(|e| crate::error::VaultError::Keychain(format!("Failed to retrieve key: {}", e)))?;
         
         let key_data = general_purpose::STANDARD.decode(&key_str)
-            .map_err(|e| VaultError::Keychain(format!("Failed to decode key: {}", e)))?;
+            .map_err(|e| crate::error::VaultError::Keychain(format!("Failed to decode key: {}", e)))?;
         
         // Retrieve metadata
         let metadata_entry = self.get_metadata_entry(key_id)?;
         let metadata_json = metadata_entry
             .get_password()
-            .map_err(|e| VaultError::Keychain(format!("Failed to retrieve metadata: {}", e)))?;
+            .map_err(|e| crate::error::VaultError::Keychain(format!("Failed to retrieve metadata: {}", e)))?;
         
         let metadata: KeyMetadata = serde_json::from_str(&metadata_json)
-            .map_err(|e| VaultError::Keychain(format!("Failed to parse metadata: {}", e)))?;
+            .map_err(|e| crate::error::VaultError::Keychain(format!("Failed to parse metadata: {}", e)))?;
         
         Ok((key_data, metadata))
     }
@@ -95,7 +94,7 @@ impl KeyStorage for WindowsKeyStorage {
         let entry = self.get_entry(key_id)?;
         entry
             .delete_password()
-            .map_err(|e| VaultError::Keychain(format!("Failed to delete key: {}", e)))?;
+            .map_err(|e| crate::error::VaultError::Keychain(format!("Failed to delete key: {}", e)))?;
         
         // Delete metadata
         let metadata_entry = self.get_metadata_entry(key_id)?;
@@ -110,7 +109,7 @@ impl KeyStorage for WindowsKeyStorage {
                 entry
                     .get_password()
                     .map(|_| true)
-                    .map_err(|_| VaultError::Keychain("Key not found".to_string()))
+                    .map_err(|_| crate::error::VaultError::Keychain("Key not found".to_string()))
             })
             .unwrap_or(false)
     }
@@ -119,7 +118,7 @@ impl KeyStorage for WindowsKeyStorage {
         // Note: keyring crate doesn't support listing all keys
         // This is a limitation of the OS keychain APIs
         // For now, return error indicating this limitation
-        Err(VaultError::Keychain(
+        Err(crate::error::VaultError::Keychain(
             "list_keys not supported by Windows Credential Manager API".to_string()
         ))
     }
@@ -129,9 +128,100 @@ impl KeyStorage for WindowsKeyStorage {
 #[cfg(target_os = "macos")]
 pub struct MacOSKeyStorage;
 
-/// Linux implementation (placeholder for future)
+/// Linux implementation using Secret Service (via keyring crate)
 #[cfg(target_os = "linux")]
-pub struct LinuxKeyStorage;
+pub struct LinuxKeyStorage {
+    service_name: String,
+}
+
+#[cfg(target_os = "linux")]
+impl LinuxKeyStorage {
+    pub fn new(service_name: impl Into<String>) -> Self {
+        Self {
+            service_name: service_name.into(),
+        }
+    }
+
+    fn get_entry(&self, key_id: &str) -> Result<keyring::Entry> {
+        keyring::Entry::new(&self.service_name, key_id)
+            .map_err(|e| crate::error::VaultError::Keychain(format!("Failed to create entry: {}", e)))
+    }
+
+    fn get_metadata_entry(&self, key_id: &str) -> Result<keyring::Entry> {
+        let metadata_key = format!("{}_metadata", key_id);
+        keyring::Entry::new(&self.service_name, &metadata_key)
+            .map_err(|e| crate::error::VaultError::Keychain(format!("Failed to create metadata entry: {}", e)))
+    }
+}
+
+#[cfg(target_os = "linux")]
+impl KeyStorage for LinuxKeyStorage {
+    fn store_key(&self, key_id: &str, key: &[u8], metadata: KeyMetadata) -> Result<()> {
+        let entry = self.get_entry(key_id)?;
+        let key_str = general_purpose::STANDARD.encode(key);
+        entry
+            .set_password(&key_str)
+            .map_err(|e| crate::error::VaultError::Keychain(format!("Failed to store key: {}", e)))?;
+
+        let metadata_entry = self.get_metadata_entry(key_id)?;
+        let metadata_json = serde_json::to_string(&metadata)
+            .map_err(|e| crate::error::VaultError::Keychain(format!("Failed to serialize metadata: {}", e)))?;
+        metadata_entry
+            .set_password(&metadata_json)
+            .map_err(|e| crate::error::VaultError::Keychain(format!("Failed to store metadata: {}", e)))?;
+
+        Ok(())
+    }
+
+    fn retrieve_key(&self, key_id: &str) -> Result<(Vec<u8>, KeyMetadata)> {
+        let entry = self.get_entry(key_id)?;
+        let key_str = entry
+            .get_password()
+            .map_err(|e| crate::error::VaultError::Keychain(format!("Failed to retrieve key: {}", e)))?;
+
+        let key_data = general_purpose::STANDARD.decode(&key_str)
+            .map_err(|e| crate::error::VaultError::Keychain(format!("Failed to decode key: {}", e)))?;
+
+        let metadata_entry = self.get_metadata_entry(key_id)?;
+        let metadata_json = metadata_entry
+            .get_password()
+            .map_err(|e| crate::error::VaultError::Keychain(format!("Failed to retrieve metadata: {}", e)))?;
+
+        let metadata: KeyMetadata = serde_json::from_str(&metadata_json)
+            .map_err(|e| crate::error::VaultError::Keychain(format!("Failed to parse metadata: {}", e)))?;
+
+        Ok((key_data, metadata))
+    }
+
+    fn delete_key(&self, key_id: &str) -> Result<()> {
+        let entry = self.get_entry(key_id)?;
+        entry
+            .delete_password()
+            .map_err(|e| crate::error::VaultError::Keychain(format!("Failed to delete key: {}", e)))?;
+
+        let metadata_entry = self.get_metadata_entry(key_id)?;
+        let _ = metadata_entry.delete_password();
+
+        Ok(())
+    }
+
+    fn key_exists(&self, key_id: &str) -> bool {
+        self.get_entry(key_id)
+            .and_then(|entry| {
+                entry
+                    .get_password()
+                    .map(|_| true)
+                    .map_err(|_| crate::error::VaultError::Keychain("Key not found".to_string()))
+            })
+            .unwrap_or(false)
+    }
+
+    fn list_keys(&self) -> Result<Vec<String>> {
+        Err(crate::error::VaultError::Keychain(
+            "list_keys not supported by Linux Secret Service API".to_string()
+        ))
+    }
+}
 
 /// Factory function to create platform-specific key storage
 pub fn create_key_storage() -> Box<dyn KeyStorage> {
@@ -148,8 +238,7 @@ pub fn create_key_storage() -> Box<dyn KeyStorage> {
     
     #[cfg(target_os = "linux")]
     {
-        // TODO: Implement Linux Secret Service
-        unimplemented!("Linux Secret Service not yet implemented")
+        Box::new(LinuxKeyStorage::new("identra-vault"))
     }
 }
 

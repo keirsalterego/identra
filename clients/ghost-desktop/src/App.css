@@ -2,28 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Identra OS - Theme variables (dark = default) */
+/* Identra OS - Production Theme (MVP Enhanced) */
 :root,
 [data-theme="dark"] {
-  --identra-bg: #0a0a0c;
-  --identra-surface: #111113;
-  --identra-surface-elevated: #18181b;
-  --identra-surface-hover: #1c1c1f;
-  --identra-border: #27272a;
-  --identra-border-subtle: #1c1c1f;
-  --identra-primary: #52525b;
-  --identra-primary-light: #71717a;
-  --identra-primary-dark: #3f3f46;
-  --identra-success: #22c55e;
-  --identra-warning: #eab308;
-  --identra-error: #ef4444;
-  --identra-active: #52525b;
-  --identra-text-primary: #fafafa;
-  --identra-text-secondary: #d4d4d8;
-  --identra-text-tertiary: #a1a1aa;
-  --identra-text-muted: #71717a;
-  --identra-text-disabled: #52525b;
-  --identra-divider: rgba(255, 255, 255, 0.04);
+  /* Background layers */
+  --identra-bg: #0a0a0b;
+  --identra-surface: #121214;
+  --identra-surface-elevated: #1a1a1d;
+  --identra-surface-hover: #202023;
+  
+  /* Borders */
+  --identra-border: #2a2a2f;
+  --identra-border-subtle: #1f1f23;
+  
+  /* Primary accent - subtle purple */
+  --identra-primary: #8b7fb8;
+  --identra-primary-light: #a599cc;
+  --identra-primary-dark: #6f659a;
+  
+  /* Text hierarchy */
+  --identra-text-primary: #f5f5f7;
+  --identra-text-secondary: #e0e0e3;
+  --identra-text-tertiary: #afafb5;
+  --identra-text-muted: #7d7d85;
+  --identra-text-disabled: #5a5a63;
+  
+  /* Status colors */
+  --identra-success: #34c759;
+  --identra-warning: #ff9f0a;
+  --identra-error: #ff453a;
+  --identra-info: #64d2ff;
+  --identra-active: #8b7fb8;
+  
+  /* Special effects */
+  --identra-glow: rgba(139, 127, 184, 0.15);
+  --identra-shadow: rgba(0, 0, 0, 0.3);
+  --identra-divider: rgba(255, 255, 255, 0.05);
 }
 
 /* Grey theme - mid-tone professional */
@@ -40,12 +54,15 @@
   --identra-success: #22c55e;
   --identra-warning: #eab308;
   --identra-error: #ef4444;
+  --identra-info: #64d2ff;
   --identra-active: #a1a1aa;
   --identra-text-primary: #fafafa;
   --identra-text-secondary: #e4e4e7;
   --identra-text-tertiary: #a1a1aa;
   --identra-text-muted: #71717a;
   --identra-text-disabled: #71717a;
+  --identra-glow: rgba(161, 161, 170, 0.15);
+  --identra-shadow: rgba(0, 0, 0, 0.25);
   --identra-divider: rgba(255, 255, 255, 0.06);
 }
 
@@ -63,12 +80,15 @@
   --identra-success: #22c55e;
   --identra-warning: #eab308;
   --identra-error: #ef4444;
+  --identra-info: #0ea5e9;
   --identra-active: #64748b;
   --identra-text-primary: #0f172a;
   --identra-text-secondary: #334155;
   --identra-text-tertiary: #64748b;
   --identra-text-muted: #94a3b8;
   --identra-text-disabled: #94a3b8;
+  --identra-glow: rgba(100, 116, 139, 0.15);
+  --identra-shadow: rgba(0, 0, 0, 0.1);
   --identra-divider: rgba(15, 23, 42, 0.08);
 }
 
